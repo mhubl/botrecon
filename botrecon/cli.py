@@ -76,7 +76,7 @@ def parse_model(ctx, param, value):
          "traffic. This parameter is ignored if --custom-model/-M is "
          "passed. A description of all available models is available "
          "in the full documentation in README.md")
-@click.option(  # TODO
+@click.option(
     '-j',
     '--jobs',
     type=int,
@@ -166,7 +166,10 @@ def botrecon(model, input_file, ftype, output_file, **kwargs):
         click.echo(f'[{str(datetime.now())}] botrecon starting')
 
     try:
-        predictions = get_predictions(get_data(input_file, ftype), model)
+        predictions = get_predictions(
+            get_data(input_file, ftype, isinstance(model, Path)),
+            model
+        )
     except Exception as e:
         ctx.fail(e)
 
