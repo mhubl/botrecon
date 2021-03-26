@@ -74,8 +74,8 @@ def parse_model(ctx, param, value):
     type=click.Choice(["rforest", "svm", "rforest-experimental"], case_sensitive=False),
     help="One of the available, predefined models for classifying the "
          "traffic. This parameter is ignored if --custom-model/-M is "
-         "passed. A description of all available models is available "
-         "in the full documentation in README.md")
+         "passed. A description of all available models can be found "
+         "in README.md")
 @click.option(
     '-j',
     '--jobs',
