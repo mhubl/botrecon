@@ -28,6 +28,32 @@ def test_min_count():
     ips = re.findall(regex, str(result.stdout_bytes))
     assert len(ips) == 1
 
+
+def test_jobs_negative():
+    result = runner.invoke(botrecon, ['-j', -20, path])
+    assert result.exit_code == 0
+
+
+def test_jobs_negative():
+        result = runner.invoke(botrecon, ['-j', -20, path])
+        assert result.exit_code == 0
+
+
+def test_jobs_normal():
+        result = runner.invoke(botrecon, ['-j', 1, path])
+        assert result.exit_code == 0
+
+
+def test_jobs_normal2():
+        result = runner.invoke(botrecon, ['-j', 8, path])
+        assert result.exit_code == 0
+
+
+
+def test_jobs_zero():
+        result = runner.invoke(botrecon, ['-j', 0, path])
+        assert result.exit_code == 2
+
 # def test_custom_model():
 #     model_path = Path('botrecon', 'models', 'rforest.pkl')
 #     print(model_path)
