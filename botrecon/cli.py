@@ -13,8 +13,16 @@ def get_ips_from_file(path):
     return [IPEntity(ip) for ip in ips]
 
 
+def parse_jobs(ctx, param, value):
+    """Silently change all negative values to -1 for sklearn/joblib to handle"""
+    if value < 0:
+        return -1
+    else:
+        return value
+
+
 def parse_ip(ctx, param, value):
-    import os
+    from os import access, R_OK
     if value:
         res = []
         for item in value:
@@ -23,7 +31,7 @@ def parse_ip(ctx, param, value):
             except ValueError as err:
                 # Check for read access
                 p = Path(item)
-                if os.access(p, os.R_OK):
+                if access(p, R_OK):
                     try:
                         res += get_ips_from_file(p)
                     except ValueError as err:
@@ -74,6 +82,7 @@ def parse_model(ctx, param, value):
     type=int,
     default=-1,
     show_default=True,
+    callback=parse_jobs,
     help='Number of parallel jobs to use for predicting. Negative values will '
          'match the cpu count. Only applies to classifiers that support '
          'multiprocessing (such as the default random forest).'
