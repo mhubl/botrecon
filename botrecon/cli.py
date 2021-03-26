@@ -15,7 +15,9 @@ def get_ips_from_file(path):
 
 def parse_jobs(ctx, param, value):
     """Silently change all negative values to -1 for sklearn/joblib to handle"""
-    if value < 0:
+    if value == 0:
+        raise click.BadParameter(value)
+    elif value < 0:
         return -1
     else:
         return value
@@ -35,9 +37,9 @@ def parse_ip(ctx, param, value):
                     try:
                         res += get_ips_from_file(p)
                     except ValueError as err:
-                        ctx.fail(err)
+                        raise click.BadParameter(str(err))
                 else:
-                    ctx.fail(err + ' or file not readable.')
+                    raise click.BadParameter(str(err) + ' (and is not a readable file)')
         return res
     else:
         return value
