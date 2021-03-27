@@ -109,6 +109,13 @@ def parse_model(ctx, param, value):
     help="Increases the default verbosity of the application."
 )
 @click.option(
+    "-d",
+    "--debug",
+    is_flag=True,
+    default=False,
+    help="Enable debug mode."
+)
+@click.option(
     "-s",
     "--silent",
     "verbosity",
@@ -190,6 +197,9 @@ def botrecon(model, input_file, ftype, output_file, **kwargs):
             model
         )
     except Exception as e:
-        ctx.fail(e)
+        if ctx.params['debug']:
+            raise
+        else:
+            ctx.fail(e)
 
     handle_output(predictions, output_file)
