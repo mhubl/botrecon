@@ -2,6 +2,9 @@ from ipaddress import ip_address, ip_network
 
 
 class IPEntity(object):
+    """
+    Simple wrapper around the address and network objects from the ipaddress module
+    """
     def __init__(self, value):
         try:
             self.ip = ip_address(value)
@@ -14,7 +17,7 @@ class IPEntity(object):
         """Check if two IP entities match.
 
         Entities match if:
-         - they're eqivalent ip addresses
+         - they're equivalent ip addresses
          - self is a network, and other is an address within that network
         """
         if not isinstance(other, IPEntity):
