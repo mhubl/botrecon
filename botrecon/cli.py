@@ -8,6 +8,7 @@ from pathlib import Path
 
 
 def get_ips_from_file(path):
+    """Returns a list of IPEntities for each IP/range in the passed file"""
     ips = path.read_text()
     ips = ips.split('\n')
     return [IPEntity(ip) for ip in ips]
@@ -24,6 +25,7 @@ def parse_jobs(ctx, param, value):
 
 
 def parse_ip(ctx, param, value):
+    """Converts IPs or files with IPs to a list of IPEntity objects"""
     from os import access, R_OK
     if value:
         res = []
@@ -46,6 +48,7 @@ def parse_ip(ctx, param, value):
 
 
 def parse_model(ctx, param, value):
+    """Returns the path or model name depending on if a custom one was passed"""
     params = ctx.params
     if "custom_model" in params and params["custom_model"] is not None:
         return Path(params["custom_model"])
@@ -56,7 +59,7 @@ def parse_model(ctx, param, value):
 
 
 @click.command()
-@click.option(  # TODO
+@click.option(
     "-M",
     "--custom-model",
     default=None,
