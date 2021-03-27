@@ -59,7 +59,7 @@ def parse_model(ctx, param, value):
 
 
 @click.command(
-    epilog="More detailed documentation available in the README.md file."
+    epilog="For a more detailed documentation see README.md\n"
            "https://github.com/mhubl/botrecon"
 )
 @click.option(
