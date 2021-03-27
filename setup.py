@@ -15,10 +15,12 @@ setup(
     packages=find_packages(),
     package_data={'botrecon': ['models/*']},
     include_package_data=True,
+    python_requires='>=3.6',
     install_requires=[
         'Click',
         'pandas',
         'numpy',
+        'pickle',
         'scikit-learn==0.24.1'
     ],
     entry_points="""
