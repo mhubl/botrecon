@@ -42,7 +42,7 @@ def make_predictions(data, model):
     if hasattr(model, 'predict_proba'):
         return model.predict_proba(data)[:, 1]
     elif hasattr(model, 'decision_function'):
-        return model.decision_function(data)[:, 1]
+        return model.decision_function(data)
     else:
         return model.predict(data)
 
