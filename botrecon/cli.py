@@ -161,7 +161,7 @@ def parse_model(ctx, param, value):
     show_default=True,
     type=click.Choice(list(Data.READERS.keys())),
     help='Type of the input file. Some types may require additional python '
-         'modeules to work.'
+         'modules to work.'
 )
 @click.version_option(None, '-V', '--version')
 @click.help_option('-h', '--help')
