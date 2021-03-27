@@ -3,6 +3,7 @@ import pandas as pd
 
 
 def handle_output(preds, outfile):
+    """Prints results to console or saves them in outfile"""
     ctx = click.get_current_context()
     # Change the column names to more presentable ones
     colnames = ["Host", "Mean Score", "Flow Count"]
@@ -17,6 +18,7 @@ def handle_output(preds, outfile):
 
 
 def output_to_console(ctx, preds):
+    """Prints results to console"""
     # Verify the user really wants to print if there's a lot
     if preds.shape[0] > 50 and not ctx.params['confirm']:
         prompt = ('More than 50 hosts have been identified as malicious. '
