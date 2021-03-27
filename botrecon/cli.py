@@ -164,7 +164,21 @@ def parse_model(ctx, param, value):
     type=click.Path(writable=True)
 )
 def botrecon(model, input_file, ftype, output_file, **kwargs):
-    """Get a list of infected hosts based on network traffic"""
+    """Get a list of infected hosts based on network traffic
+
+    BotRecon takes data about the network traffic, uses machine learning to
+    finds hosts infected with botnet malware.
+    It can also be used as an interface to use with your own machine learning
+    model if it supports the scikit-learn API.
+
+    INPUT_FILE is a path to the file with captured NetFlow traffic. Data should
+      be in a csv format unless a different --type is specified. BotRecon expects
+      the following columns:
+      protocol, dstport, srcport, state, duration, totalbytes, sourcebytes, src addr
+
+    OUTPUT_FILE is a path to the desired output file location. It will be saved
+      as a .csv
+    """
     ctx = click.get_current_context()
 
     if ctx.params['verbosity'] >= 0:
