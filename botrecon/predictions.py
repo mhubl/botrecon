@@ -4,6 +4,7 @@ import numpy as np
 
 
 def get_predictions(data, model):
+    """Makes predictions and returns a list of infected hosts"""
     ctx = click.get_current_context()
 
     model = load_model(model)
@@ -47,6 +48,7 @@ def make_predictions(data, model):
 
 
 def filter_hosts(data, min_count=0):
+    """Removes hosts that do not satisfy filter conditions"""
     ctx = click.get_current_context()
 
     data.hosts['count'] = 0
@@ -68,6 +70,7 @@ def filter_hosts(data, min_count=0):
 
 
 def filter_ips(hosts, ranges):
+    """Removes hosts not in the specified ranges"""
     if not ranges:
         return None
 
@@ -79,6 +82,7 @@ def filter_ips(hosts, ranges):
 
 
 def evaluate_per_host(preds, hosts, threshold=.5):
+    """Returns a dataframe with infected hosts based on the passed predictions"""
     preds = pd.DataFrame({
         'host': hosts['srcaddr'],
         'count': hosts['count'],
@@ -98,6 +102,7 @@ def evaluate_per_host(preds, hosts, threshold=.5):
 
 
 def load_model(model):
+    """Loads the model from the passed path or name"""
     import sklearn
     import category_encoders
     import pickle
