@@ -160,6 +160,8 @@ def parse_model(ctx, param, value):
     help='Type of the input file. Some types may require additional python '
          'modeules to work.'
 )
+@click.version_option(None, '-V', '--version')
+@click.help_option('-h', '--help')
 @click.argument(
     "input_file",
     required=True,
