@@ -6,18 +6,33 @@ import numpy as np
 def get_predictions(data, model):
     """Makes predictions and returns a list of infected hosts"""
     ctx = click.get_current_context()
+    verbose = ctx.params['verbosity'] > 0 or ctx.params['debug']
+
+    if verbose:
+        click.echo('Loading the model')
 
     model = load_model(model)
     model = adjust_njobs(model, ctx.params['jobs'])
+
+    if verbose:
+        click.echo('Filtering data')
+
     data = filter_hosts(data, ctx.params['min_count'])
 
+    if verbose:
+        click.echo('Predicting')
+
     predictions = make_predictions(data.data, model)
+
+    if verbose:
+        click.echo('Extracting infected hosts')
 
     return evaluate_per_host(predictions, data.hosts)
 
 
 def adjust_njobs(model, n_jobs):
     """Attempts to set the number of jobs for the classifier/pipeline"""
+    ctx = click.get_current_context()
     try:
         # Attempt to set the param for each element of the pipeline
         for i in range(len(model)):
@@ -31,8 +46,7 @@ def adjust_njobs(model, n_jobs):
             return model
         else:
             # Otherwise it doesn't support multiprocessing
-            ctx = click.get_current_context()
-            if ctx.params['verbosity'] > 0:
+            if ctx.params['verbosity'] > 0 or ctx.params['debug']:
                 click.echo('Specified classifier does not support multiprocessing.')
             return model
 
@@ -52,8 +66,7 @@ def filter_hosts(data, min_count=0):
     ctx = click.get_current_context()
 
     data.hosts['count'] = 0
-    data.hosts['count'] = data.hosts.groupby(
-        'srcaddr').transform('count')['count']
+    data.hosts['count'] = data.hosts.groupby('srcaddr').transform('count')['count']
 
     if min_count > 0:
         m = data.hosts['count'].map(lambda count: count > min_count)
