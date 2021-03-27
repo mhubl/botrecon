@@ -129,12 +129,6 @@ class Data(object):
         raise ValueError(f'Invalid number of columns: {len(cols)}, '
                          f'expected: {len(Data.COLUMNS)}')
 
-    def applyParallel(self, dfGrouped, func):
-        from joblib import Parallel, delayed
-        retLst = Parallel(n_jobs=-1)(delayed(func)(group)
-                                     for name, group in dfGrouped)
-        return pd.concat(retLst)
-
     def _get_names(self, cols):
         colnames = []
         missing = []
