@@ -3,10 +3,26 @@ import numpy as np
 
 
 def get_data(path, type, no_transforms=False):
+    """
+    Converts data loaded from path into a new Data object. Also applies some base
+    transformations unless no_transforms is set to True.
+    """
     return Data(path, type).prepare(no_transforms)
 
 
 class Data(object):
+    """An object wrapping all base data operations.
+
+    Attributes:
+    data  pandas.DataFrame     the actual data loaded from the file
+    hosts pandas.DataFrame     the extracted column with source addresses
+    path  string/pathlib.Path  the path the data was originally loaded from
+    type  string               filetype of the file, must be a key of Data.READERS
+
+    Static:
+    COLUMNS list has the required column names and possible aliases
+    READERS dict mapping of filetypes to respective loading functions
+    """
     COLUMNS = [
         ['proto', 'protocol'],
         ['dport', 'destinationport', 'dstport'],
@@ -35,10 +51,12 @@ class Data(object):
         self.load()
 
     def load(self):
+        """Loads the data from path"""
         self.data = Data.READERS[self.type](self.path)
         return self.data
 
     def prepare(self, no_transforms=False):
+        """Separates hosts and applies transformations to prepare data for use."""
         # Convert the columns to a common format - all lowercase, no spaces
         self.data.columns = self.data.columns.str.lower().str.replace(' ', '')
 
@@ -54,6 +72,7 @@ class Data(object):
         return self
 
     def make_transforms(self):
+        """Applies transformations and removes unnecessary columns"""
         # Find the column labels used in the input dataset,
         # Reorder and rename them to match Data.COLUMNS[:, 0]
         columns = self.extract_feature_names()
@@ -69,16 +88,18 @@ class Data(object):
         return self
 
     def find_hosts(self):
-        names = ['srcaddr', 'srcaddress', 'sourceaddr', 'sourceaddress']
+        """Locates the column with src addresses and extracts it into self.hosts"""
+        names = ['srcaddr', 'srcaddress', 'sourceaddr', 'sourceaddress', 'host']
         for name in names:
             if name in self.data.columns:
                 self.hosts = self.data.loc[:, [name]]
                 self.data.drop(columns=[name])
                 self.hosts.columns = ['srcaddr']
                 return self
-        raise ValueError('No column containing source addresses')
+        raise ValueError('Unable to locate source addresses in data')
 
     def extract_feature_names(self):
+        """Attempts to find the required columns in data using aliases from Data.COLUMNS"""
         columns = self._get_columns(self.data.columns)
         return columns
 
@@ -89,14 +110,16 @@ class Data(object):
             try:
                 return self._get_names(cols)
             except TypeError as e:
-                raise ValueError('Invalid column type encountered:\n', e)
+                raise TypeError('Invalid column type encountered:', e)
 
     def get_bitspersec(self):
+        """Calculates bits per second"""
         totbytes = self.data['totbytes']
         duration = self.data['dur']
         return np.uint64(np.around((totbytes * 8) / duration))
 
     def add_features(self):
+        """Calculates and adds additional data columns"""
         self.data['bps'] = self.get_bitspersec()
 
     def _get_numeric(self, cols):
