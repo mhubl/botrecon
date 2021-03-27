@@ -58,7 +58,10 @@ def parse_model(ctx, param, value):
         return value
 
 
-@click.command()
+@click.command(
+    epilog="More detailed documentation available in the README.md file."
+           "https://github.com/mhubl/botrecon"
+)
 @click.option(
     "-M",
     "--custom-model",
