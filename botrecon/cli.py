@@ -109,13 +109,6 @@ def parse_model(ctx, param, value):
     help="Increases the default verbosity of the application."
 )
 @click.option(
-    "-d",
-    "--debug",
-    is_flag=True,
-    default=False,
-    help="Enable debug mode."
-)
-@click.option(
     "-s",
     "--silent",
     "verbosity",
@@ -128,6 +121,13 @@ def parse_model(ctx, param, value):
     flag_value=0,
     default=True,
     hidden=True
+)
+@click.option(
+    "-d",
+    "--debug",
+    is_flag=True,
+    default=False,
+    help="Enable debug mode."
 )
 @click.option(
     "-r",
