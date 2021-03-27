@@ -1,0 +1,2 @@
+# Don't consider sample files when determining repo languages
+tests/data/* linguist-vendored
