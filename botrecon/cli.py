@@ -204,7 +204,6 @@ def botrecon(model, input_file, ftype, output_file, **kwargs):
     if ctx.params['verbosity'] >= 0:
         click.echo(f'[{str(datetime.now())}] botrecon starting')
 
-
     if ctx.params['verbosity'] > 0 or ctx.params['debug']:
         click.echo('Loading data')
     try:
