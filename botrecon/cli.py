@@ -181,12 +181,20 @@ def botrecon(model, input_file, ftype, output_file, **kwargs):
     model if it supports the scikit-learn API.
 
     INPUT_FILE is a path to the file with captured NetFlow traffic. Data should
-      be in a csv format unless a different --type is specified. BotRecon expects
-      the following columns:
-      protocol, dstport, srcport, state, duration, totalbytes, sourcebytes, src addr
+    be in a csv format unless a different --type is specified. BotRecon expects
+    the following data:
+
+      source address\n
+      protocol\n
+      destination port\n
+      source port\n
+      state\n
+      duration\n
+      totalbytes\n
+      sourcebytes\n
 
     OUTPUT_FILE is a path to the desired output file location. It will be saved
-      as a .csv
+    as a .csv
     """
     ctx = click.get_current_context()
 
