@@ -99,7 +99,7 @@ class Data(object):
         raise ValueError('Unable to locate source addresses in data')
 
     def extract_feature_names(self):
-        """Attempts to find the required columns in data using aliases from Data.COLUMNS"""
+        """Attempts to identify the required columns using aliases from Data.COLUMNS"""
         columns = self._get_columns(self.data.columns)
         return columns
 
