@@ -22,12 +22,40 @@ def get_predictions(data, model):
     if verbose:
         click.echo('Predicting')
 
-    predictions, threshold = make_predictions(data.data, model)
+    batchify = ctx.params['batchify']
+    if batchify[0]:
+        predictions, threshold = make_predictions_batchified(data, model, batchify)
+    else:
+        predictions, threshold = make_predictions(data.data, model)
 
     if verbose:
         click.echo('Extracting infected hosts')
 
     return evaluate_per_host(predictions, data.hosts, threshold)
+
+
+def make_predictions_batchified(data, model, batchify):
+    """Splits data into batches, gets predictions for each and merges them back"""
+    shape = data.data.shape[0]
+    results = []
+
+    ctx = click.get_current_context()
+    if ctx.params['verbosity'] == 0:
+        with click.progressbar(label='Predicting', length=shape) as bar:
+            for batch in data.batchify(*batchify):
+                results.append(make_predictions(batch, model))
+                bar.update(batch.shape[0])
+    else:
+        for batch in data.batchify(*batchify):
+            results.append(make_predictions(batch, model))
+
+    threshold = results[0][1]
+    preds = np.concatenate([result[0] for result in results])
+
+    if preds.shape[0] != shape:
+        raise ValueError('Unknown exception - batchifying failed.')
+
+    return preds, threshold
 
 
 def adjust_njobs(model, n_jobs):

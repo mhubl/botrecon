@@ -58,6 +58,31 @@ def parse_model(ctx, param, value):
         return value
 
 
+def parse_batchify(ctx, param, value):
+    """Validates the logic behind passed batchify option values"""
+    if value == (0, ''):
+        return value
+
+    typ = value[1]
+    val = value[0]
+
+    if typ == 'percent':
+        typ = "%"
+        value = (val, typ)
+
+    if typ == '%':
+        if not (0 < val < 100):
+            err = f'Invalid value for type "%". Must be between 0 and 100, got {val}'
+        else:
+            return value
+    elif typ == 'batches':
+        return (int(val), typ)
+    else:
+        err = f'Invalid type {typ}, must be either "%" or "batches"'
+
+    raise click.BadParameter(err)
+
+
 @click.command(
     epilog="For a more detailed documentation see README.md\n"
            "https://github.com/mhubl/botrecon"
@@ -103,6 +128,20 @@ def parse_model(ctx, param, value):
     show_default=True,
     help='Minimum netflow count required for a host to be evaluated. If set to 0'
          'or lower no hosts are filtered.'
+)
+@click.option(
+    '-b',
+    '--batchify',
+    type=(click.FLOAT, click.STRING),
+    default=(0, ''),
+    callback=parse_batchify,
+    help='Divide data into batches before predicting. Helpful for classifiers '
+         'that have high memory usage or for large amounts of data. To use specify '
+         'a value and then type. Type can be either "%" or "batches". If "%" the '
+         'value has to be a float between 0 and 100. If "batches" it has to be '
+         'a positive integer lower than the number of rows in data (after filtering). '
+         'If no verbosity options are passed, this enables a progress bar for '
+         'predicting. Example: `--batchify 5 %`'
 )
 @click.option(
     "-v",
