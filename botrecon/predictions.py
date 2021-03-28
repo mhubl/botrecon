@@ -87,9 +87,11 @@ def filter_ips(hosts, ranges):
     if not ranges:
         return None
 
-    def condition(addr):
+    ignore_invalid = click.get_current_context().params['ignore_invalid']
+
+    def condition(addr, ignore_invalid=ignore_invalid):
         # Checks if the passed address matches any of the specified ranges
-        return np.any([r.matches(addr) for r in ranges])
+        return np.any([r.matches(addr, ignore_invalid) for r in ranges])
     # Map returns a boolean array with True where the condition was satisfied
     return hosts['srcaddr'].map(condition)
 
