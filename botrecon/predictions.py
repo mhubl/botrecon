@@ -22,12 +22,12 @@ def get_predictions(data, model):
     if verbose:
         click.echo('Predicting')
 
-    predictions = make_predictions(data.data, model)
+    predictions, threshold = make_predictions(data.data, model)
 
     if verbose:
         click.echo('Extracting infected hosts')
 
-    return evaluate_per_host(predictions, data.hosts)
+    return evaluate_per_host(predictions, data.hosts, threshold)
 
 
 def adjust_njobs(model, n_jobs):
@@ -54,11 +54,11 @@ def adjust_njobs(model, n_jobs):
 def make_predictions(data, model):
     """Performs final checks and predicts using the appropriate method."""
     if hasattr(model, 'predict_proba'):
-        return model.predict_proba(data)[:, 1]
+        return model.predict_proba(data)[:, 1], .5
     elif hasattr(model, 'decision_function'):
-        return model.decision_function(data)
+        return model.decision_function(data), 0
     else:
-        return model.predict(data)
+        return model.predict(data), .5
 
 
 def filter_hosts(data, min_count=0):
