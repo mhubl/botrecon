@@ -36,7 +36,20 @@ Install the package
 
     pip install .
     
-BotRecon should now be usable as `botrecon`. If it isn't, make sure your appropriate `site-packages` directory or `~/.local/bin` is in your `PATH`.
+BotRecon should now be usable as `botrecon`. If it isn't, make sure your appropriate `site-packages` directory or `~/.local/bin` is in your `$PATH`.
+
+If you want to modify the code to fit your requirements, `requirements-dev.txt` contains dependencies for running tests and linting. It's also recommended to use the -e flag with pip for an editable install.
+
+    pip install -r requirements-dev.txt
+    pip install -e .
+And afterwards, from the base directory:
+
+Running tests
+
+    pytest
+Verifying style
+
+    flake8
 
 ## Details
 ### Data requirements
