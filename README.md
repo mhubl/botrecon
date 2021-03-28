@@ -5,15 +5,21 @@ Botrecon is a simple command line tool that can help you secure your network fro
 1. [Description](#botrecon)
 2. [Installation](#installation)
 3. [Details](#details)
-    1. [Compatibility](#compatibility)
-    2. [Data requirements](#data-requirements)
-    3. [Verbosity](#verbosity)
-    4. [Models](#models)
+    1. [Data requirements](#data-requirements)
+    2. [Verbosity](#verbosity)
+    3. [Models](#models)
 4. [Examples](#examples)
 5. [Usage](#usage)
 6. [Liability notice](#liability-notice)
 
 ## Installation
+
+
+### Python version
+
+The newest version of python is generally recommended, but anything above python 3.6 is supported and should work both. Versions below 3.8 may not fully support all filetypes (e.g. pickle5), which might cause some tests to fail depending on your configuration. 
+
+### Installation steps
 Download the repository
 
     git clone https://github.com/mhubl/botrecon.git
@@ -33,9 +39,6 @@ Install the package
 BotRecon should now be usable as `botrecon`. If it isn't, make sure your appropriate `site-packages` directory or `~/.local/bin` is in your `PATH`.
 
 ## Details
-### Compatibility
-Botrecon was tested on Windows and Ubuntu using python 3.6, 3.7 and 3.8. Using python 3.6 or above is required, but 3.8 or above is recommended. Versions below 3.8 may not fully support all filetypes (e.g. pickle5), which might cause some tests to fail depending on your configuration.
-
 ### Data requirements
 The default models use netflow capture files and require the following columns:
 * source address
@@ -51,7 +54,7 @@ The names specified above are guaranteed to work, but if different ones are used
 To read more about the netflow format see [the Wikipedia article on NetFlow](https://en.wikipedia.org/wiki/NetFlow) and [the OpenArgus website](https://openargus.org/).
 
 ### Verbosity
-The verbose option enables some additional status/log messages during the execution, while debug disables additional error handling and should print full trace messages in most cases unrelated to parameter parsing and implicitly enables `--verbose` (unless `--silent` is enabled).
+The verbose option enables some additional status/log messages during the execution, while debug disables additional error handling and should print full trace messages in most cases unrelated to parameter parsing and implicitly enables `--verbose` (unless `--silent` is enabled). Additionally, debug does not display the progress bar during predictions if data is batchified, but it prints a line each iteration.
 
 ### Models
 Botrecon supports custom models, but also provides three default ones.
@@ -60,7 +63,7 @@ Botrecon supports custom models, but also provides three default ones.
 A Random Forest Classifier, it's the default option. This is potentially the best performing classifier out of the three attached by default. The returned scores are probabilities, ranging between 0 and 1.
 
 #### svm
-A Support Vector Machine classifier using the RBF kernel. Potentially a bit worse than the default. This uses the Nystrom method to approximate the kernel matrix, and will cause high memory usage. If you need to use it consider splitting the data into smaller batches if you encounter memory issues. This classifier does not support multiprocessing out of the box. Scores returned are **not** probabilities, any score above 0 is a positive classification and higher values mean higher confidence.
+A Support Vector Machine classifier using the RBF kernel. Potentially a bit worse than the default. This uses the Nystrom method to approximate the kernel matrix, and will cause high memory usage. If you need to use it consider using `--batchify` if you encounter memory issues. This classifier does not support multiprocessing out of the box. Scores returned are **not** probabilities, any score above 0 is a positive classification and higher values mean higher confidence.
 
 #### rforest-experimental
 This is also a Random Forest Classifier, but trained on different training dataset in order to generalize better. This *might* actually perform better than the default, but it also might not, so use at your discretion. As in the default rforest, scores are probabilities in range between 0 and 1.
@@ -88,6 +91,12 @@ Saving output to a file
 Using a custom model
     
     botrecon -M /path/to/custom/model.pkl path/to/netflow/capture/file.csv
+    
+Displaying prediction progress using a progress bar, and
+
+Splitting the data into 100 even batches to save memory using certain classifiers
+    
+    botrecon --batchify 1 % path/to/netflow/capture/file.csv
 
 ## Usage
     Usage: botrecon [OPTIONS] INPUT_FILE [OUTPUT_FILE]
@@ -101,7 +110,7 @@ Using a custom model
 
       INPUT_FILE is a path to the file with captured NetFlow traffic. Data
       should be in a csv format unless a different --type is specified. BotRecon
-      expects the following columns:
+      expects the following data:
 
         source address
 
@@ -148,6 +157,18 @@ Using a custom model
                                       be evaluated. If set to 0or lower no hosts
                                       are filtered.  [default: 0]
 
+      -b, --batchify <FLOAT TEXT>...  Divide data into batches before predicting.
+                                      Helpful for classifiers that have high
+                                      memory usage or for large amounts of data.
+                                      To use specify a value and then type. Type
+                                      can be either "%" or "batches". If "%" the
+                                      value has to be a float between 0 and 100.
+                                      If "batches" it has to be a positive integer
+                                      lower than the number of rows in data (after
+                                      filtering). If no verbosity options are
+                                      passed, this enables a progress bar for
+                                      predicting. Example: `--batchify 5 %`
+
       -v, --verbose                   Increases the default verbosity of the
                                       application.
 
@@ -155,6 +176,16 @@ Using a custom model
                                       application.
 
       -d, --debug                     Enable debug mode.
+      -i, --ignore-invalid, --ignore-invalid-addresses
+                                      Controls the behavior in regards to invalid
+                                      host addresses in the data.Setting this flag
+                                      will make invalid addresses be silently
+                                      ignored instead of raising an error. Ignored
+                                      addresses will not be considered during
+                                      classification. Only applies if filtering by
+                                      IPs/ranges, no validity requirements are
+                                      enforced otherwise.
+
       -r, --range, --ip TEXT          An IP address, network, or a path to a file
                                       containing a list with one of either per
                                       line. If specified, hosts not on the list
@@ -174,6 +205,9 @@ Using a custom model
 
       -V, --version                   Show the version and exit.
       -h, --help                      Show this message and exit.
+
+      For a more detailed documentation see README.md
+      https://github.com/mhubl/botrecon
       
 ## Liability notice
 
