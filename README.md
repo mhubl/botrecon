@@ -1,12 +1,17 @@
-Work in progress
 # BotRecon
-BotRecon is a simple command line tool that can help you secure your network from botnets. Just collect your network traffic (see [details](#details)), point BotRecon to the netflow capture file and wait for the results.
+Botrecon is a simple command line tool that can help you secure your network from botnets. Just collect your network traffic (see [details](#data-requirements)), point botrecon to the netflow capture file and wait for the results.
 
 ## Contents
 1. [Description](#botrecon)
 2. [Installation](#installation)
 3. [Details](#details)
-4. [Usage](#usage)
+    1. [Compatibility](#compatibility)
+    2. [Data requirements](#data-requirements)
+    3. [Verbosity](#verbosity)
+    4. [Models](#models)
+4. [Examples](#examples)
+5. [Usage](#usage)
+6. [Liability notice](#liability-notice)
 
 ## Installation
 Download the repository
@@ -25,9 +30,64 @@ Install the package
 
     pip install .
     
-BotRecon should now be usable as `botrecon`. If it's not available make sure `~/.local/bin` is in your $PATH variable.
+BotRecon should now be usable as `botrecon`. If it isn't, make sure your appropriate `site-packages` directory or `~/.local/bin` is in your `PATH`.
 
 ## Details
+### Compatibility
+Botrecon was tested on Windows and Ubuntu using python 3.6, 3.7 and 3.8. Using python 3.6 or above is required, but 3.8 or above is recommended. Versions below 3.8 may not fully support all filetypes (e.g. pickle5), which might cause some tests to fail depending on your configuration.
+
+### Data requirements
+The default models use netflow capture files and require the following columns:
+* source address
+* protocol
+* destination port
+* source port
+* state
+* duration
+* total bytes
+* source bytes
+
+The names specified above are guaranteed to work, but if different ones are used botrecon will try to find the correct ones. In case a column cannot be located, an error message containing the missing name will be printed. If the file does not contain column names, it is expected that there are exactly 8 columns and botrecon assumes that the order is as listed above.
+To read more about the netflow format see [the Wikipedia article on NetFlow](https://en.wikipedia.org/wiki/NetFlow) and [the OpenArgus website](https://openargus.org/).
+
+### Verbosity
+The verbose option enables some additional status/log messages during the execution, while debug disables additional error handling and should print full trace messages in most cases unrelated to parameter parsing and implicitly enables `--verbose` (unless `--silent` is enabled).
+
+### Models
+Botrecon supports custom models, but also provides three default ones.
+
+#### rforest
+A Random Forest Classifier, it's the default option. This is potentially the best performing classifier out of the three attached by default. The returned scores are probabilities, ranging between 0 and 1.
+
+#### svm
+A Support Vector Machine classifier using the RBF kernel. Potentially a bit worse than the default. This uses the Nystrom method to approximate the kernel matrix, and will cause high memory usage. If you need to use it consider splitting the data into smaller batches if you encounter memory issues. This classifier does not support multiprocessing out of the box. Scores returned are **not** probabilities, any score above 0 is a positive classification and higher values mean higher confidence.
+
+#### rforest-experimental
+This is also a Random Forest Classifier, but trained on different training dataset in order to generalize better. This *might* actually perform better than the default, but it also might not, so use at your discretion. As in the default rforest, scores are probabilities in range between 0 and 1.
+
+#### Custom model
+To improve accuracy or adapt botrecon to your data you may want to use your own custom machine learning model. This is supported using the `-M/--custom-model` option. If a custom model is specified the data is passed to it without any transformations being applied, with the following exceptions:
+* column containing source addresses is dropped
+* column names are transformed to lowercase and all spaces are stripped
+
+The model is expected to implement a `predict_proba`, `decision_function` or `predict` method. The score is then calculated as a mean of the classification scores for each host. The model is also loaded using pickle, so it needs to be picklable. If you're using a model that does not support that (e.g. a keras hdf5 model) you can [create a custom sklearn estimator](https://scikit-learn.org/stable/developers/develop.html) using a [BaseEstimator](https://scikit-learn.org/stable/modules/generated/sklearn.base.BaseEstimator.html) object and load it there. You can also use a similar subclassing approach with transformers if you need to import more packages than are made available by default ([sklearn](https://scikit-learn.org/stable/index.html) and [category_encoders](https://contrib.scikit-learn.org/category_encoders/)).
+
+## Examples
+Basic usage
+    
+    botrecon path/to/netflow/capture/file.csv
+    
+Using different filetypes
+    
+    botrecon -t feather path/to/netflow/capture/file.feather
+    
+Saving output to a file
+    
+    botrecon path/to/netflow/capture/file.csv path/to/desired/output.csv
+    
+Using a custom model
+    
+    botrecon -M /path/to/custom/model.pkl path/to/netflow/capture/file.csv
 
 ## Usage
     Usage: botrecon [OPTIONS] INPUT_FILE [OUTPUT_FILE]
@@ -109,8 +169,20 @@ BotRecon should now be usable as `botrecon`. If it's not available make sure `~/
 
       -t, --type [csv|feather|fwf|stata|json|pickle|parquet|excel]
                                       Type of the input file. Some types may
-                                      require additional python modeules to work.
+                                      require additional python modules to work.
                                       [default: csv]
 
       -V, --version                   Show the version and exit.
       -h, --help                      Show this message and exit.
+      
+## Liability notice
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+PLEASE NOTE THAT THE ABOVE NOTICE ALSO APPLIES TO THE ATTACHED MACHINE LEARNING MODELS. NO GUARANTEES ARE MADE IN REGARDS TO THEIR ACCURACY AND ABILITY TO PROPERLY DETECT ANY THREATS, THEY ARE NOT A REPLACEMENT FOR ANY OTHER SOLUTIONS OR SECURITY POLICIES.
