@@ -4,4 +4,4 @@ from .ip import IPEntity
 from .output import handle_output
 from .cli import botrecon
 
-__version__ = '1.0.0.dev'
+__version__ = '1.0.0'
