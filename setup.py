@@ -20,7 +20,6 @@ setup(
         'Click',
         'pandas',
         'numpy',
-        'pickle',
         'scikit-learn==0.24.1'
     ],
     entry_points="""
