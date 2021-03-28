@@ -17,26 +17,39 @@ Botrecon is a simple command line tool that can help you secure your network fro
 
 ### Python version
 
-The newest version of python is generally recommended, but anything above python 3.6 is supported and should work both. Versions below 3.8 may not fully support all filetypes (e.g. pickle5), which might cause some tests to fail depending on your configuration. 
+The newest version of python is generally recommended, but anything above python 3.6 is supported and should work both. Versions below 3.8 may not fully support all filetypes (e.g. pickle5), which might cause some tests to fail depending on your configuration.
 
 ### Installation steps
 Download the repository
 
     git clone https://github.com/mhubl/botrecon.git
-    
+
 Move into the directory
 
     cd botrecon
-    
+
 Install the dependencies
 
     pip install -r requirements.txt
-    
+
 Install the package
 
     pip install .
-    
-BotRecon should now be usable as `botrecon`. If it isn't, make sure your appropriate `site-packages` directory or `~/.local/bin` is in your `PATH`.
+
+BotRecon should now be usable as `botrecon`. If it isn't, make sure your appropriate `site-packages` directory or `~/.local/bin` is in your `$PATH`.
+
+If you want to modify the code to fit your requirements, `requirements-dev.txt` contains dependencies for running tests and linting. It's also recommended to use the -e flag with pip for an editable install.
+
+    pip install -r requirements-dev.txt
+    pip install -e .
+And afterwards, from the base directory:
+
+Running tests
+
+    pytest
+Verifying style
+
+    flake8
 
 ## Details
 ### Data requirements
@@ -77,25 +90,25 @@ The model is expected to implement a `predict_proba`, `decision_function` or `pr
 
 ## Examples
 Basic usage
-    
+
     botrecon path/to/netflow/capture/file.csv
-    
+
 Using different filetypes
-    
+
     botrecon -t feather path/to/netflow/capture/file.feather
-    
+
 Saving output to a file
-    
+
     botrecon path/to/netflow/capture/file.csv path/to/desired/output.csv
-    
+
 Using a custom model
-    
+
     botrecon -M /path/to/custom/model.pkl path/to/netflow/capture/file.csv
-    
+
 Displaying prediction progress using a progress bar, and
 
 Splitting the data into 100 even batches to save memory using certain classifiers
-    
+
     botrecon --batchify 1 % path/to/netflow/capture/file.csv
 
 ## Usage
@@ -208,7 +221,7 @@ Splitting the data into 100 even batches to save memory using certain classifier
 
       For a more detailed documentation see README.md
       https://github.com/mhubl/botrecon
-      
+
 ## Liability notice
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
