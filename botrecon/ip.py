@@ -13,7 +13,7 @@ class IPEntity(object):
             self.ip = ip_network(value)
             self.type = 'network'
 
-    def matches(self, other):
+    def matches(self, other, ignore_invalid=False):
         """Check if two IP entities match.
 
         Entities match if:
@@ -22,7 +22,13 @@ class IPEntity(object):
         """
         if not isinstance(other, IPEntity):
             # This will raise a ValueError if other is not a valid ip address
-            other = ip_address(other)
+            try:
+                other = ip_address(other)
+            except ValueError:
+                if ignore_invalid:
+                    return False
+                else:
+                    raise
 
         if self.type == 'address':
             return self.ip == other

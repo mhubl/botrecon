@@ -133,6 +133,19 @@ def parse_model(ctx, param, value):
     help="Enable debug mode."
 )
 @click.option(
+    "-i",
+    "--ignore-invalid",
+    "--ignore-invalid-addresses",
+    "ignore_invalid",
+    default=False,
+    is_flag=True,
+    help='Controls the behavior in regards to invalid host addresses in the data.'
+         'Setting this flag will make invalid addresses be silently ignored '
+         'instead of raising an error. Ignored addresses will not be considered '
+         'during classification. Only applies if filtering by IPs/ranges, no '
+         'validity requirements are enforced otherwise.'
+)
+@click.option(
     "-r",
     "--range",
     "--ip",
