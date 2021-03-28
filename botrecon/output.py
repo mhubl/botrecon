@@ -31,6 +31,7 @@ def output_to_console(ctx, preds):
             preds.to_csv(f)
             return
 
+    click.echo()
     if preds.shape[0] == 0:
         click.echo('No hosts were found to be infected.')
         return
