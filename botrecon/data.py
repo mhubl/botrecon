@@ -147,6 +147,33 @@ class Data(object):
         else:
             return colnames
 
+    def batchify(self, num, batch_type):
+        """Splits the data into a number of batches of equal sizes"""
+        # Start by determining the number of batches
+        n_rows = self.data.shape[0]
+        if batch_type == '%':
+            if not (0 < num < 100):
+                raise ValueError(f'Invalid percentage of rows per batch: {num}')
+            num /= 100
+            n_batches = int(1 / num)
+        elif batch_type == 'batches':
+            n_batches = num
+            if not (0 < n_batches < n_rows):
+                m = (f'Invalid number of batches ({n_batches}). Must be positive '
+                     f'and lower than the number of rows ({n_rows})')
+                raise ValueError(m)
+        else:
+            raise ValueError(f'Invalid batch type: {batch_type}')
+
+        # Actual batchifying starts here
+        batches = [(i + 1) * (n_rows // n_batches) for i in range(n_batches)]
+        batches = np.vsplit(self.data, batches)
+
+        # Remove all empty batches if any show up
+        batches = [i for i in batches if i.shape[0] != 0]
+
+        return batches
+
     def __repr__(self):
         r = (
             f'{self.__class__.__name__} of shape: {self.data.shape} '
