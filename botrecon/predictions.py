@@ -40,11 +40,16 @@ def make_predictions_batchified(data, model, batchify):
     results = []
 
     ctx = click.get_current_context()
-    if ctx.params['verbosity'] == 0:
+    if ctx.params['verbosity'] >= 0 and not ctx.params['debug']:
         with click.progressbar(label='Predicting', length=shape) as bar:
             for batch in data.batchify(*batchify):
                 results.append(make_predictions(batch, model))
                 bar.update(batch.shape[0])
+    elif ctx.params['debug']:
+        for batch in data.batchify(*batchify):
+            if ctx.params['debug']:
+                click.echo(f'batch shape: {batch.shape}, result length: {len(results)}')
+            results.append(make_predictions(batch, model))
     else:
         for batch in data.batchify(*batchify):
             results.append(make_predictions(batch, model))
