@@ -197,8 +197,8 @@ def parse_batchify(ctx, param, value):
 )
 @click.option(
     "-y",
-    "--yes",
     "--confirm",
+    "--yes",
     is_flag=True,
     default=False,
     help="Automatically accepts any prompts shown by the application. "
